@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Circuit Simulator | Neon Logic Lab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="container">
+
+    <header class="hero">
+        <p class="eyebrow">VERILOG HDL • DIGITAL ELECTRONICS</p>
+        <h1>Digital Circuit Simulator</h1>
+        <p>Design and Simulation of Digital Circuits using Verilog HDL</p>
+    </header>
+
+    <section class="card">
+        <h2>⚡ Simulation Input</h2>
+
+        <label for="binaryMode">Choose Input Mode</label>
+        <select id="binaryMode" onchange="changeBinaryMode()">
+            <option value="single">Single-Bit Mode</option>
+            <option value="multiple">Multiple-Bit Mode</option>
+        </select>
+
+        <div id="singleBitInputs">
+            <div class="input-grid">
+                <div>
+                    <label for="inputA">Input A</label>
+                    <select id="inputA">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="inputB">Input B</label>
+                    <select id="inputB">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="carryIn">Carry In (Cin)</label>
+                    <select id="carryIn">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="muxSelect">MUX Select (S)</label>
+                    <select id="muxSelect">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="simulateButton" onclick="simulate()">
+                Run Verilog Simulation
+            </button>
+        </div>
+
+        <div id="multipleBitInputs" hidden>
+            <div class="input-grid">
+                <div>
+                    <label for="binaryA">Binary Number A</label>
+                    <input id="binaryA" type="text"
+                           maxlength="32" placeholder="Example: 1010">
+                </div>
+
+                <div>
+                    <label for="binaryB">Binary Number B</label>
+                    <input id="binaryB" type="text"
+                           maxlength="32" placeholder="Example: 0011">
+                </div>
+            </div>
+
+            <label for="binaryOperation">Choose Operation</label>
+            <select id="binaryOperation">
+                <option value="ADD">Addition (+)</option>
+                <option value="SUB">Subtraction (-)</option>
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+                <option value="XOR">XOR</option>
+                <option value="NOT">NOT A</option>
+            </select>
+
+            <button onclick="calculateBinary()">Calculate Binary Result</button>
+
+            <div class="binary-result">
+                <p class="result-label">Binary Result</p>
+                <h2 id="binaryResult">—</h2>
+                <p id="decimalResult">Decimal result: —</p>
+                <p id="binaryStatus" role="status"></p>
+            </div>
+        </div>
+
+        <p id="simulationStatus" class="status" role="status">
+            Choose inputs and run a simulation.
+        </p>
+    </section>
+
+    <section class="card">
+        <h2>📊 Single-Bit Circuit Outputs</h2>
+        <div class="output-grid">
+            <div class="output-item">AND <strong id="andOutput">—</strong></div>
+            <div class="output-item">OR <strong id="orOutput">—</strong></div>
+            <div class="output-item">NOT A <strong id="notOutput">—</strong></div>
+            <div class="output-item">XOR <strong id="xorOutput">—</strong></div>
+            <div class="output-item">NAND <strong id="nandOutput">—</strong></div>
+            <div class="output-item">NOR <strong id="norOutput">—</strong></div>
+            <div class="output-item">XNOR <strong id="xnorOutput">—</strong></div>
+            <div class="output-item">Half Adder Sum <strong id="haSum">—</strong></div>
+            <div class="output-item">Half Adder Carry <strong id="haCarry">—</strong></div>
+            <div class="output-item">Full Adder Sum <strong id="faSum">—</strong></div>
+            <div class="output-item">Full Adder Carry <strong id="faCarry">—</strong></div>
+            <div class="output-item">MUX Output <strong id="muxOutput">—</strong></div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>🔌 Circuit Diagrams</h2>
+        <div class="diagram-grid">
+            <div class="diagram">
+                <h3>Logic Gates</h3>
+                <svg viewBox="0 0 300 100" role="img" aria-label="AND gate diagram">
+                    <text x="10" y="35">A</text>
+                    <text x="10" y="75">B</text>
+                    <path d="M30 30 H100 M30 70 H100 M100 20 V80 H140 A30 30 0 0 0 140 20 Z"
+                          fill="none" stroke="#a78bfa" stroke-width="3"/>
+                    <path d="M170 50 H240" stroke="#22d3ee" stroke-width="3"/>
+                    <text x="250" y="55" fill="#22d3ee">Y</text>
+                </svg>
+                <p>AND gate: Y = A · B</p>
+            </div>
+
+            <div class="diagram">
+                <h3>Half Adder</h3>
+                <svg viewBox="0 0 300 100" role="img" aria-label="Half adder block diagram">
+                    <rect x="85" y="10" width="130" height="80" rx="10"
+                          fill="#171d35" stroke="#a78bfa" stroke-width="2"/>
+                    <text x="150" y="42" fill="#ffffff" text-anchor="middle">Half Adder</text>
+                    <text x="150" y="65" fill="#22d3ee" text-anchor="middle">SUM / CARRY</text>
+                    <path d="M15 35 H85 M15 70 H85 M215 35 H285 M215 70 H285"
+                          stroke="#22d3ee" stroke-width="2"/>
+                </svg>
+                <p>SUM = A XOR B; CARRY = A AND B</p>
+            </div>
+
+            <div class="diagram">
+                <h3>Full Adder</h3>
+                <svg viewBox="0 0 300 100" role="img" aria-label="Full adder block diagram">
+                    <rect x="85" y="10" width="130" height="80" rx="10"
+                          fill="#171d35" stroke="#38bdf8" stroke-width="2"/>
+                    <text x="150" y="42" fill="#ffffff" text-anchor="middle">Full Adder</text>
+                    <text x="150" y="65" fill="#22d3ee" text-anchor="middle">SUM / CARRY</text>
+                    <path d="M15 30 H85 M15 50 H85 M15 70 H85 M215 35 H285 M215 70 H285"
+                          stroke="#22d3ee" stroke-width="2"/>
+                </svg>
+                <p>Uses A, B and carry-in.</p>
+            </div>
+
+            <div class="diagram">
+                <h3>2:1 Multiplexer</h3>
+                <svg viewBox="0 0 300 100" role="img" aria-label="2 to 1 multiplexer diagram">
+                    <path d="M95 15 L195 30 L195 70 L95 85 Z"
+                          fill="#171d35" stroke="#a78bfa" stroke-width="2"/>
+                    <path d="M15 30 H95 M15 70 H95 M195 50 H275"
+                          stroke="#22d3ee" stroke-width="2"/>
+                    <text x="115" y="55" fill="#ffffff">MUX</text>
+                    <text x="10" y="20" fill="#ffffff">A/B</text>
+                    <text x="10" y="94" fill="#ffffff">S</text>
+                    <text x="255" y="40" fill="#ffffff">Y</text>
+                </svg>
+                <p>S = 0 selects A; S = 1 selects B.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>📋 Truth Tables</h2>
+        <label for="truthTableType">Select Circuit</label>
+        <select id="truthTableType" onchange="renderTruthTable()">
+            <option value="gates">Logic Gates</option>
+            <option value="half">Half Adder</option>
+            <option value="full">Full Adder</option>
+            <option value="mux">2:1 MUX</option>
+        </select>
+        <div class="table-wrap">
+            <table id="truthTable"></table>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>〰️ Signal Display</h2>
+        <p class="muted">Illustrative signal levels for the latest simulation; not a timing-accurate VCD waveform.</p>
+        <div id="waveform">
+            <p class="empty-state">Run a simulation to display signal levels.</p>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="section-heading">
+            <h2>🕘 Simulation History</h2>
+            <button class="secondary-button" onclick="clearHistory()">Clear History</button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th><th>A</th><th>B</th><th>Cin</th>
+                        <th>S</th><th>FA Sum</th><th>FA Carry</th><th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="8">No simulations yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer>Digital Circuit Simulator • Built with HTML, CSS, JavaScript and Verilog HDL</footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
