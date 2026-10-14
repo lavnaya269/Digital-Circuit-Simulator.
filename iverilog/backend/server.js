@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const { execFile } = require("child_process");
@@ -6,26 +5,39 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
+// Project paths
 const SIM_DIR = path.resolve(__dirname, "..");
 const VERILOG_FILE = path.join(SIM_DIR, "digital_circuits.v");
 const TB_FILE = path.join(SIM_DIR, "dynamic_tb.v");
 const OUTPUT_FILE = path.join(SIM_DIR, "dynamic_tb.vvp");
 
-const IVERILOG = "C:\\iverilog\\bin\\iverilog.exe";
-const VVP = "C:\\iverilog\\bin\\vvp.exe";
+// Detect Windows or Linux automatically
+const IS_WINDOWS = process.platform === "win32";
 
+const IVERILOG = IS_WINDOWS
+    ? "C:\\iverilog\\bin\\iverilog.exe"
+    : "iverilog";
+
+const VVP = IS_WINDOWS
+    ? "C:\\iverilog\\bin\\vvp.exe"
+    : "vvp";
+
+// Home route
 app.get("/", (req, res) => {
     res.send("Digital Circuit Simulator Backend is Running!");
 });
 
+// Simulation route
 app.post("/simulate", (req, res) => {
     const { A, B, Cin, S } = req.body;
 
+    // Validate inputs
     if (![A, B, Cin, S].every(v => v === 0 || v === 1)) {
         return res.status(400).json({
             error: "Inputs A, B, Cin and S must be 0 or 1."
@@ -38,6 +50,7 @@ app.post("/simulate", (req, res) => {
         });
     }
 
+    // Generate a testbench for the selected inputs
     const testbench = `
 module dynamic_tb;
 reg A, B, Cin, S;
@@ -67,37 +80,50 @@ endmodule
     try {
         fs.writeFileSync(TB_FILE, testbench);
     } catch (error) {
+        console.error("Testbench write error:", error);
+
         return res.status(500).json({
             error: "Could not write testbench: " + error.message
         });
     }
 
+    // Compile the Verilog source
     execFile(
         IVERILOG,
         ["-o", OUTPUT_FILE, VERILOG_FILE, TB_FILE],
         { cwd: SIM_DIR },
         (compileError, stdout, stderr) => {
             if (compileError) {
-                console.error("Compile error:", stderr || compileError.message);
+                console.error(
+                    "Compile error:",
+                    stderr || compileError.message
+                );
+
                 return res.status(500).json({
                     error: "Verilog compilation failed: " +
                         (stderr || compileError.message)
                 });
             }
 
+            // Run the compiled simulation
             execFile(
                 VVP,
                 [OUTPUT_FILE],
                 { cwd: SIM_DIR },
                 (runError, runStdout, runStderr) => {
                     if (runError) {
-                        console.error("Simulation error:", runStderr || runError.message);
+                        console.error(
+                            "Simulation error:",
+                            runStderr || runError.message
+                        );
+
                         return res.status(500).json({
                             error: "Verilog simulation failed: " +
                                 (runStderr || runError.message)
                         });
                     }
 
+                    // Read the circuit output
                     const match = runStdout.match(
                         /RESULT\s+([01])\s+([01])\s+([01])\s+([01])\s+([01])\s+([01])\s+([01])\s+([01])\s+([01])\s+([01])\s+([01])\s+([01])/
                     );
@@ -110,11 +136,19 @@ endmodule
 
                     const v = match.slice(1).map(Number);
 
-                    res.json({
-                        AND: v[0], OR: v[1], NOT: v[2], XOR: v[3],
-                        NAND: v[4], NOR: v[5], XNOR: v[6],
-                        HA_SUM: v[7], HA_CARRY: v[8],
-                        FA_SUM: v[9], FA_CARRY: v[10], MUX: v[11]
+                    return res.json({
+                        AND: v[0],
+                        OR: v[1],
+                        NOT: v[2],
+                        XOR: v[3],
+                        NAND: v[4],
+                        NOR: v[5],
+                        XNOR: v[6],
+                        HA_SUM: v[7],
+                        HA_CARRY: v[8],
+                        FA_SUM: v[9],
+                        FA_CARRY: v[10],
+                        MUX: v[11]
                     });
                 }
             );
@@ -122,8 +156,10 @@ endmodule
     );
 });
 
-app.listen(PORT, () => {
+// Start server
+app.listen(PORT, "0.0.0.0", () => {
     console.log("ACTIVE SERVER FILE:", __filename);
+    console.log("Operating system:", process.platform);
     console.log("Icarus executable:", IVERILOG);
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server listening on port ${PORT}`);
 });

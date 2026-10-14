@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:3000/simulate";
+const API_URL = window.SIMULATOR_API_URL || "http://localhost:3000/simulate";
 
 // Store the IDs of the output elements
 const outputElements = {
