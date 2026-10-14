@@ -1,0 +1,4 @@
+﻿node_modules/
+iverilog/backend/node_modules/
+*.vvp
+*.vcd
